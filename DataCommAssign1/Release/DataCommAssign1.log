@@ -1,0 +1,41 @@
+﻿  application.cpp
+application.cpp(15): error C2664: 'void OutputDebugStringW(LPCWSTR)': cannot convert argument 1 from 'const char [8]' to 'LPCWSTR'
+  application.cpp(15): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+application.cpp(64): error C2664: 'BOOL TextOutW(HDC,int,int,LPCWSTR,int)': cannot convert argument 4 from 'char [2]' to 'LPCWSTR'
+  application.cpp(64): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+application.cpp(69): error C2664: 'BOOL TextOutW(HDC,int,int,LPCWSTR,int)': cannot convert argument 4 from 'char [2]' to 'LPCWSTR'
+  application.cpp(69): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+application.cpp(86): error C2664: 'void OutputDebugStringW(LPCWSTR)': cannot convert argument 1 from 'const char [18]' to 'LPCWSTR'
+  application.cpp(86): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+application.cpp(102): error C2664: 'void OutputDebugStringW(LPCWSTR)': cannot convert argument 1 from 'char [80]' to 'LPCWSTR'
+  application.cpp(102): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+application.cpp(107): error C2664: 'void OutputDebugStringW(LPCWSTR)': cannot convert argument 1 from 'const char [25]' to 'LPCWSTR'
+  application.cpp(107): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+application.cpp(110): error C2664: 'void OutputDebugStringW(LPCWSTR)': cannot convert argument 1 from 'const char [7]' to 'LPCWSTR'
+  application.cpp(110): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+application.cpp(120): error C2664: 'void OutputDebugStringW(LPCWSTR)': cannot convert argument 1 from 'char [80]' to 'LPCWSTR'
+  application.cpp(120): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+application.cpp(122): error C2664: 'void OutputDebugStringW(LPCWSTR)': cannot convert argument 1 from 'const char [22]' to 'LPCWSTR'
+  application.cpp(122): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+application.cpp(125): error C2664: 'void OutputDebugStringW(LPCWSTR)': cannot convert argument 1 from 'const char [25]' to 'LPCWSTR'
+  application.cpp(125): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+application.cpp(128): error C2664: 'void OutputDebugStringW(LPCWSTR)': cannot convert argument 1 from 'const char [5]' to 'LPCWSTR'
+  application.cpp(128): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+  DataCommAssign1.cpp
+DataCommAssign1.cpp(49): error C2440: '=': cannot convert from 'char [11]' to 'LPCWSTR'
+  DataCommAssign1.cpp(49): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+DataCommAssign1.cpp(51): error C2440: '=': cannot convert from 'const char [7]' to 'LPCWSTR'
+  DataCommAssign1.cpp(51): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+DataCommAssign1.cpp(59): error C2664: 'HWND CreateWindowExW(DWORD,LPCWSTR,LPCWSTR,DWORD,int,int,int,int,HWND,HMENU,HINSTANCE,LPVOID)': cannot convert argument 2 from 'char [11]' to 'LPCWSTR'
+  DataCommAssign1.cpp(59): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+DataCommAssign1.cpp(96): error C2664: 'BOOL CommConfigDialogW(LPCWSTR,HWND,LPCOMMCONFIG)': cannot convert argument 1 from 'LPCSTR' to 'LPCWSTR'
+  DataCommAssign1.cpp(96): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+DataCommAssign1.cpp(119): error C2664: 'BOOL CommConfigDialogW(LPCWSTR,HWND,LPCOMMCONFIG)': cannot convert argument 1 from 'LPCSTR' to 'LPCWSTR'
+  DataCommAssign1.cpp(119): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+DataCommAssign1.cpp(129): error C2664: 'int MessageBoxW(HWND,LPCWSTR,LPCWSTR,UINT)': cannot convert argument 2 from 'const char [24]' to 'LPCWSTR'
+  DataCommAssign1.cpp(129): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+DataCommAssign1.cpp(150): error C2664: 'BOOL TextOutW(HDC,int,int,LPCWSTR,int)': cannot convert argument 4 from 'char [80]' to 'LPCWSTR'
+  DataCommAssign1.cpp(150): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+  physicalHeader.cpp
+physicalHeader.cpp(8): error C2664: 'HANDLE CreateFileW(LPCWSTR,DWORD,DWORD,LPSECURITY_ATTRIBUTES,DWORD,DWORD,HANDLE)': cannot convert argument 1 from 'LPCSTR' to 'LPCWSTR'
+  physicalHeader.cpp(8): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast

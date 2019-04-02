@@ -1,0 +1,1 @@
+BOOL connectSerialPort(HANDLE* hComm, LPCSTR lpszCommName);

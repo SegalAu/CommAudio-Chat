@@ -1,0 +1,19 @@
+#include "Header.h"
+
+MYMENU MENU
+{
+	
+	POPUP "&Settings"
+	{
+		POPUP "&Port"
+		{
+			MENUITEM "&COM1", IDM_COM1
+			MENUITEM "&COM2", IDM_COM2
+			MENUITEM "&COM3", IDM_COM3
+			MENUITEM "&COM4", IDM_COM4
+		}
+	}
+	MENUITEM "&Connect", IDM_CONNECT
+	MENUITEM "&Exit", IDM_EXIT_APP
+	MENUITEM "&Help", IDM_HELP
+}
