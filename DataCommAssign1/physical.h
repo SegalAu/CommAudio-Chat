@@ -1,3 +1,7 @@
+#define PORT 7000
+#define DATA_BUFSIZE 256
+
+
 typedef struct threadStructWrite {
 	HANDLE hComm;
 	HWND hwnd;
@@ -15,10 +19,14 @@ typedef struct threadStructRead {
 	threadStructRead(HANDLE hComm, HWND hwnd, char* buffer, LPDWORD nHandle) : hComm(hComm), hwnd(hwnd), buffer(buffer), nHandle(nHandle) {};
 } *threadStructReadPoint;
 
-DWORD WINAPI setupInputDevice(LPVOID voider);
-DWORD WINAPI create_thread_read(HANDLE hComm, HWND hwnd, char buffer[1], LPDWORD nHandle);
-static DWORD WINAPI displayMessage(HWND hwnd, char buffer);
-VOID sendMessagesSimple(HANDLE hComm, WPARAM wParam);
 
+
+DWORD WINAPI WorkerThread(LPVOID lpParameter);
 
 int setupSendSocket();
+DWORD WINAPI setupInputDevice(LPVOID voider);
+DWORD WINAPI create_thread_read(HANDLE hComm, HWND hwnd, char buffer[1], LPDWORD nHandle);
+
+
+
+

@@ -1,7 +1,6 @@
 ﻿  physical.cpp
-c:\users\administrator\desktop\project\datacommassign1\physical.cpp(77): warning C4101: 'nRead': unreferenced local variable
-c:\users\administrator\desktop\project\datacommassign1\physical.cpp(76): warning C4101: 'buffer': unreferenced local variable
-c:\users\administrator\desktop\project\datacommassign1\physical.cpp(281): warning C4101: 'paintstruct': unreferenced local variable
-c:\users\administrator\desktop\project\datacommassign1\physical.cpp(308): warning C4101: 'str': unreferenced local variable
-c:\users\administrator\desktop\project\datacommassign1\physical.cpp(261): warning C4715: 'setupSendSocket': not all control paths return a value
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(97): warning C4101: 'nRead': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(96): warning C4101: 'buffer': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(221): warning C4101: 'buf_ptr': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(217): warning C4101: 'err': unreferenced local variable
   DataCommAssign1.vcxproj -> C:\Users\Administrator\Desktop\project\Debug\DataCommAssign1.exe

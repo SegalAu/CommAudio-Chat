@@ -19,19 +19,19 @@
 -- Handles creation of thread for reading input from serial port, as well as writing to serial port from
 -- application. 
 ---------------------------------------------------------------------------------------------------*/
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
-
+#include <winsock2.h>
 #include <windows.h>
-#include <WinSock2.h>
 #include <stdio.h>
 #include "physical.h"
+
+
+
 
 static unsigned k = 0;
 HANDLE hThreadRead;
 DWORD readThreadId;
-
-#define PORT 7000
-#define DATA_BUFSIZE 256
 
 typedef struct _SOCKET_INFORMATION {
 	OVERLAPPED Overlapped;
@@ -42,12 +42,12 @@ typedef struct _SOCKET_INFORMATION {
 	DWORD BytesRECV;
 } SOCKET_INFORMATION, *LPSOCKET_INFORMATION;
 
-void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
-	LPWSAOVERLAPPED Overlapped, DWORD InFlags);
+void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred, LPWSAOVERLAPPED Overlapped, DWORD InFlags);
 
-DWORD WINAPI WorkerThread(LPVOID lpParameter);
+
 
 SOCKET AcceptSocket;
+
 
 /*------------------------------------------------------------------------------------------------------------------
 -- FUNCTION:       create_thread_read
@@ -199,7 +199,7 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 
 	rc = setupSendSocket(); 
 
-	if (rc) {
+	if (rc != 0) {
 		OutputDebugString("Error setting up socket!\n");
 	}
 
@@ -212,12 +212,19 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 
 int setupSendSocket() {
 	OutputDebugString("Reached Set up Socket!\n");
-	int i, nBufSize, err;
+
+
+	int i, nBufSize, err, Ret;
+	HANDLE ThreadHandle;
+	DWORD ThreadId;
 	SOCKET sock;
 	char *buf, *buf_ptr;
-	struct sockaddr_in sin;
+	/*struct sockaddr_in sin;*/
+	SOCKADDR_IN InternetAddr; 
 	WSADATA stWSAData;
+	WSAEVENT AcceptEvent;
 	WORD wVersionRequested = MAKEWORD(2, 2);
+
 
 	int portNum;
 	char * ipAddr; 
@@ -250,38 +257,101 @@ int setupSendSocket() {
 	
 
 	// Initialize the DLL with version Winsock 2.2
-	WSAStartup(wVersionRequested, &stWSAData);
+	/*if (WSAStartup(wVersionRequested, &stWSAData) == 0){
+		OutputDebugString("WSAStartup failed!\n");
+		WSACleanup(); 
+		return 1;
+	}*/
+	if ((Ret = WSAStartup(0x0202, &stWSAData)) != 0)
+	{
+		printf("WSAStartup failed with error %d\n", Ret);
+		WSACleanup();
+		return 1;
+	}
 
-	// Open a connectionless, unreliable socket (Datagrams)
-	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) < 0)
+	// UDP Socket
+	if ((sock = WSASocket(AF_INET, SOCK_DGRAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED)) == INVALID_SOCKET) {
+		OutputDebugString("Failed to get socket!\n");
 		exit(2);
-
-
-
-	buf_ptr = buf;
-
-	// Set the socket options such that the send buffer size is set at the
-	// application layer
-	if (err = setsockopt(sock, SOL_SOCKET, SO_SNDBUF, buf_ptr, sizeof(buf)) != 0)
-	{
-		printf("Error in setsockopt!\n");
-		exit(3);
 	}
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = AF_INET;	 // Specify the Internet (TCP/IP) Address family
-	sin.sin_port = htons(portNum); // Convert to network byte order
+		
 
-	
+	InternetAddr.sin_family = AF_INET;
+	InternetAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	InternetAddr.sin_port = htons(PORT);				//7000
 
-	// Ensure that the IP string is a legitimate address (dotted decimal)
-	if ((sin.sin_addr.s_addr = inet_addr(ipAddr)) == INADDR_NONE)
+	//buf_ptr = buf;
+
+	//// Set the socket options such that the send buffer size is set at the
+	//// application layer
+	//if (err = setsockopt(sock, SOL_SOCKET, SO_SNDBUF, buf_ptr, sizeof(buf)) != 0)
+	//{
+	//	printf("Error in setsockopt!\n");
+	//	exit(3);
+	//}
+	//memset(&sin, 0, sizeof(sin));
+	//sin.sin_family = AF_INET;	 // Specify the Internet (TCP/IP) Address family
+	//sin.sin_port = htons(portNum); // Convert to network byte order
+
+	//
+
+	//// Ensure that the IP string is a legitimate address (dotted decimal)
+	//if ((sin.sin_addr.s_addr = inet_addr(ipAddr)) == INADDR_NONE)
+	//{
+	//	printf("Invalid IP address\n");
+	//	exit(3);
+	//}
+
+	if (bind(sock, (PSOCKADDR)&InternetAddr,
+		sizeof(InternetAddr)) == SOCKET_ERROR)
 	{
-		printf("Invalid IP address\n");
-		exit(3);
+		
+		OutputDebugString("bind() failed with error %d\n");
+		/*printf(, WSAGetLastError());*/
+		return 1;
 	}
+
+	/*if (listen(sock, 2) == SOCKET_ERROR)
+	{
+		char msgBuffery[20];
+		OutputDebugString(_itoa(WSAGetLastError(),msgBuffery, 10));
+		OutputDebugString("\n listen failed with error!\n");
+		printf("listen() failed with error %d\n", WSAGetLastError());
+		return 2;
+	}*/
+
+	if ((AcceptEvent = WSACreateEvent()) == WSA_INVALID_EVENT)
+	{
+		OutputDebugString("WSACreateEvent() failed with error %d\n");
+		printf("WSACreateEvent() failed with error %d\n", WSAGetLastError());
+		return 3;
+	}
+
+
 	OutputDebugString("IP Address & Socket Okay\n");
 	printf("Socket is %d\n", sock);
 	OutputDebugString("We have ignition!\n");
+
+
+	// Worker thread to service completed I/O Requests
+
+	if ((ThreadHandle = CreateThread(NULL, 0, WorkerThread, (LPVOID)AcceptEvent, 0, &ThreadId)) == NULL)
+	{
+		printf("CreateThread failed with error %d\n", GetLastError());
+		return 1;
+	}
+
+	while (TRUE)
+	{
+		AcceptSocket = accept(sock, NULL, NULL);
+
+		if (WSASetEvent(AcceptEvent) == FALSE)
+		{
+			printf("WSASetEvent failed with error %d\n", WSAGetLastError());
+			return 2; 
+		}
+	}
+
 }
 
 /*------------------------------------------------------------------------------------------------------------------
@@ -299,41 +369,160 @@ int setupSendSocket() {
 ----------------------------------------------------------------------------------------------------------------------*/
 
 
-static DWORD WINAPI displayMessage(HWND hwnd, char buffer) {
+DWORD WINAPI WorkerThread(LPVOID lpParameter)
+{
+	DWORD Flags;
+	LPSOCKET_INFORMATION SocketInfo;
+	WSAEVENT EventArray[1];
+	DWORD Index;
+	DWORD RecvBytes;
 
-	HDC hdc;
-	PAINTSTRUCT paintstruct;
-	char str[80] = "";
+	// Save the accept event in the event array.
 
-	hdc = GetDC(hwnd);		 // get device context
-	sprintf_s(str, "%c", (char)buffer); // Convert char to string
-	TextOut(hdc, 13 * k, 0, str, strlen(str)); // output character	
-	k++; // increment the screen x-coordinate
-	ReleaseDC(hwnd, hdc); // Release device context
-	return 0;
+	EventArray[0] = (WSAEVENT)lpParameter;
+
+	while (TRUE)
+	{
+		// Wait for accept() to signal an event and also process WorkerRoutine() returns.
+
+		while (TRUE)
+		{
+			Index = WSAWaitForMultipleEvents(1, EventArray, FALSE, WSA_INFINITE, TRUE);
+
+			if (Index == WSA_WAIT_FAILED)
+			{
+				printf("WSAWaitForMultipleEvents failed with error %d\n", WSAGetLastError());
+				return FALSE;
+			}
+
+			if (Index != WAIT_IO_COMPLETION)
+			{
+				// An accept() call event is ready - break the wait loop
+				break;
+			}
+		}
+
+		WSAResetEvent(EventArray[Index - WSA_WAIT_EVENT_0]);
+
+		// Create a socket information structure to associate with the accepted socket.
+
+		if ((SocketInfo = (LPSOCKET_INFORMATION)GlobalAlloc(GPTR,
+			sizeof(SOCKET_INFORMATION))) == NULL)
+		{
+			printf("GlobalAlloc() failed with error %d\n", GetLastError());
+			return FALSE;
+		}
+
+		// Fill in the details of our accepted socket.
+
+		// TODO: TAKE INPUT AUDIO DATA FROM MIC AND FILL BUFFER
+
+		SocketInfo->Socket = AcceptSocket;
+		ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
+		SocketInfo->BytesSEND = 0;
+		SocketInfo->BytesRECV = 0;
+		SocketInfo->DataBuf.len = DATA_BUFSIZE;
+		SocketInfo->DataBuf.buf = SocketInfo->Buffer;
+
+		Flags = 0;
+		if (WSARecv(SocketInfo->Socket, &(SocketInfo->DataBuf), 1, &RecvBytes, &Flags,
+			&(SocketInfo->Overlapped), WorkerRoutine) == SOCKET_ERROR)
+		{
+			if (WSAGetLastError() != WSA_IO_PENDING)
+			{
+				printf("WSARecv() failed with error %d\n", WSAGetLastError());
+				return FALSE;
+			}
+		}
+
+		printf("Socket %d connected\n", AcceptSocket);
+	}
+
+	return TRUE;
 }
 
-/*------------------------------------------------------------------------------------------------------------------
--- FUNCTION:       sendMessagesSimple
---
--- INTERFACE :	   VOID sendMessagesSimple(HANDLE hComm, WPARAM wParam)
---
--- DATE:           October 3rd, 2018
---
--- DESIGNER:       Segal Au, A01000835
---
--- PROGRAMMER:     Segal Au, A01000835
---
--- NOTES:          Handles writing to serial port. Run when character is inputted into application.
-----------------------------------------------------------------------------------------------------------------------*/
+void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
+	LPWSAOVERLAPPED Overlapped, DWORD InFlags)
+{
+	DWORD SendBytes, RecvBytes;
+	DWORD Flags;
 
+	// Reference the WSAOVERLAPPED structure as a SOCKET_INFORMATION structure
+	LPSOCKET_INFORMATION SI = (LPSOCKET_INFORMATION)Overlapped;
 
-VOID sendMessagesSimple(HANDLE hComm, WPARAM wParam) {
-	char str[80];
-	LPDWORD nWrite = 0; 
-	char charToSend = wParam;
+	if (Error != 0)
+	{
+		printf("I/O operation failed with error %d\n", Error);
+	}
 
-	if (!WriteFile(hComm, &charToSend, 1, nWrite, NULL)) {
-		OutputDebugString("Write file failed!");
+	if (BytesTransferred == 0)
+	{
+		printf("Closing socket %d\n", SI->Socket);
+	}
+
+	if (Error != 0 || BytesTransferred == 0)
+	{
+		closesocket(SI->Socket);
+		GlobalFree(SI);
+		return;
+	}
+
+	// Check to see if the BytesRECV field equals zero. If this is so, then
+	// this means a WSARecv call just completed so update the BytesRECV field
+	// with the BytesTransferred value from the completed WSARecv() call.
+
+	if (SI->BytesRECV == 0)
+	{
+		SI->BytesRECV = BytesTransferred;
+		SI->BytesSEND = 0;
+	}
+	else
+	{
+		SI->BytesSEND += BytesTransferred;
+	}
+
+	if (SI->BytesRECV > SI->BytesSEND)
+	{
+
+		// Post another WSASend() request.
+		// Since WSASend() is not gauranteed to send all of the bytes requested,
+		// continue posting WSASend() calls until all received bytes are sent.
+
+		ZeroMemory(&(SI->Overlapped), sizeof(WSAOVERLAPPED));
+
+		SI->DataBuf.buf = SI->Buffer + SI->BytesSEND;
+		SI->DataBuf.len = SI->BytesRECV - SI->BytesSEND;
+
+		if (WSASend(SI->Socket, &(SI->DataBuf), 1, &SendBytes, 0,
+			&(SI->Overlapped), WorkerRoutine) == SOCKET_ERROR)
+		{
+			if (WSAGetLastError() != WSA_IO_PENDING)
+			{
+				printf("WSASend() failed with error %d\n", WSAGetLastError());
+				return;
+			}
+		}
+	}
+	else
+	{
+		SI->BytesRECV = 0;
+
+		// Now that there are no more bytes to send post another WSARecv() request.
+
+		Flags = 0;
+		ZeroMemory(&(SI->Overlapped), sizeof(WSAOVERLAPPED));
+
+		SI->DataBuf.len = DATA_BUFSIZE;
+		SI->DataBuf.buf = SI->Buffer;
+
+		if (WSARecv(SI->Socket, &(SI->DataBuf), 1, &RecvBytes, &Flags,
+			&(SI->Overlapped), WorkerRoutine) == SOCKET_ERROR)
+		{
+			if (WSAGetLastError() != WSA_IO_PENDING)
+			{
+				printf("WSARecv() failed with error %d\n", WSAGetLastError());
+				return;
+			}
+		}
 	}
 }

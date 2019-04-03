@@ -226,7 +226,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 		}
 		else {
-			sendMessagesSimple(hComm, wParam);
+			/*sendMessagesSimple(hComm, wParam);*/
 		}		
 		break;
 
