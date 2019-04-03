@@ -1,10 +1,7 @@
-﻿  application.cpp
-c:\users\administrator\desktop\datacommassign1\datacommassign1\resource.h(12): warning C4005: 'IDM_EXIT': macro redefinition
-  c:\users\administrator\desktop\datacommassign1\datacommassign1\header.h(23): note: see previous definition of 'IDM_EXIT'
-  physical.cpp
-c:\users\administrator\desktop\datacommassign1\datacommassign1\physical.cpp(77): warning C4101: 'nRead': unreferenced local variable
-c:\users\administrator\desktop\datacommassign1\datacommassign1\physical.cpp(76): warning C4101: 'buffer': unreferenced local variable
-c:\users\administrator\desktop\datacommassign1\datacommassign1\physical.cpp(171): warning C4101: 'paintstruct': unreferenced local variable
-c:\users\administrator\desktop\datacommassign1\datacommassign1\physical.cpp(198): warning C4101: 'str': unreferenced local variable
-  Generating Code...
-  DataCommAssign1.vcxproj -> C:\Users\Administrator\Desktop\DataCommAssign1\Debug\DataCommAssign1.exe
+﻿  physical.cpp
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(77): warning C4101: 'nRead': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(76): warning C4101: 'buffer': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(281): warning C4101: 'paintstruct': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(308): warning C4101: 'str': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(261): warning C4715: 'setupSendSocket': not all control paths return a value
+  DataCommAssign1.vcxproj -> C:\Users\Administrator\Desktop\project\Debug\DataCommAssign1.exe

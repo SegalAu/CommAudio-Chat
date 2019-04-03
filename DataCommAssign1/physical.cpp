@@ -77,13 +77,18 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 	DWORD nRead;
 
 	
+	const int NUMPTS = 44100 * 10;   // 10 seconds
 	
 	HWAVEIN hwi;
+	WAVEHDR      WaveInHdr;
+
 	WAVEINCAPS   wic;
 	WAVEFORMATEX wfx;
 	UINT         nDevId;
 	MMRESULT     rc;
 	UINT         nMaxDevices = waveInGetNumDevs();
+
+	MMRESULT result = 0; 
 
 	hwi = NULL;
 	//nPlaybackBufferPos = 0L;  // position in playback buffer
@@ -140,14 +145,121 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 
 	if (hwi == NULL)
 	{
-		OutputDebugString("hwi is null!\n");
+		OutputDebugString("device not found!\n");
 		return(FALSE);
 	}
 
 	//Successfully found input device
 	OutputDebugString("Found input device!\n");
 
-	return(TRUE);
+
+	// Set up and prepare header for input
+	WaveInHdr.lpData = (LPSTR)hwi;
+	WaveInHdr.dwBufferLength = 256;
+	WaveInHdr.dwBytesRecorded = 0;
+	WaveInHdr.dwUser = 0L;
+	WaveInHdr.dwFlags = 0L;
+	WaveInHdr.dwLoops = 0L;
+	result = waveInPrepareHeader(hwi, &WaveInHdr, sizeof(WAVEHDR));
+
+	if (result) {
+		OutputDebugString("Error: cannot prepare wave in header!\n");
+		return 1;
+	}
+
+	// Insert a wave input buffer
+	result = waveInAddBuffer(hwi, &WaveInHdr, sizeof(WAVEHDR));
+	if (result)
+	{
+		OutputDebugString("Failed to read block from device!\n");
+		return 1;
+	}
+
+	// Set up Socket
+
+	rc = setupSendSocket(); 
+
+
+
+
+
+	return(0);
+}
+
+
+
+int setupSendSocket() {
+	OutputDebugString("Reached Set up Socket!\n");
+	int i, nBufSize, err;
+	SOCKET sock;
+	char *buf, *buf_ptr;
+	struct sockaddr_in sin;
+	WSADATA stWSAData;
+	WORD wVersionRequested = MAKEWORD(2, 2);
+
+	int portNum;
+	char * ipAddr; 
+
+	//if (argc != 4)
+	//{
+	//	printf("Usage: sender <Remote-Address> <Packet-Size> <Port>\n");
+	//	printf("		Enter the Remote Address in dotted IP format\n");
+	//	printf("		Packet size is in Bytes\n");
+	//	exit(1);
+	//}
+	//else
+	//{
+	//	//printf("%s %s %s\n", argv[0], argv[1], argv[2]) ;
+	//	nBufSize = atoi(argv[2]);
+	//	printf("Buffer size is %d\n", nBufSize);
+	//}
+
+	//HARDCODED VALUES
+	nBufSize = 256;
+	portNum = 7000; 
+	ipAddr = "192.168.0.17";
+
+
+	buf = (char*)malloc(nBufSize);
+
+	for (i = 0; i < nBufSize; i++)
+		buf[i] = 'a';
+
+	
+
+	// Initialize the DLL with version Winsock 2.2
+	WSAStartup(wVersionRequested, &stWSAData);
+
+	// Open a connectionless, unreliable socket (Datagrams)
+	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) < 0)
+		exit(2);
+
+
+
+	buf_ptr = buf;
+
+	// Set the socket options such that the send buffer size is set at the
+	// application layer
+	if (err = setsockopt(sock, SOL_SOCKET, SO_SNDBUF, buf_ptr, sizeof(buf)) != 0)
+	{
+		printf("Error in setsockopt!\n");
+		exit(3);
+	}
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = AF_INET;	 // Specify the Internet (TCP/IP) Address family
+	sin.sin_port = htons(portNum); // Convert to network byte order
+
+	
+
+	// Ensure that the IP string is a legitimate address (dotted decimal)
+	if ((sin.sin_addr.s_addr = inet_addr(ipAddr)) == INADDR_NONE)
+	{
+		printf("Invalid IP address\n");
+		exit(3);
+	}
+	OutputDebugString("IP Address & Socket Okay\n");
+	printf("Socket is %d\n", sock);
+	OutputDebugString("We have ignition!\n");
 }
 
 /*------------------------------------------------------------------------------------------------------------------

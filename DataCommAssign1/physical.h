@@ -19,3 +19,6 @@ DWORD WINAPI setupInputDevice(LPVOID voider);
 DWORD WINAPI create_thread_read(HANDLE hComm, HWND hwnd, char buffer[1], LPDWORD nHandle);
 static DWORD WINAPI displayMessage(HWND hwnd, char buffer);
 VOID sendMessagesSimple(HANDLE hComm, WPARAM wParam);
+
+
+int setupSendSocket();
