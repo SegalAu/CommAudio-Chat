@@ -22,12 +22,32 @@
 
 
 #include <windows.h>
+#include <WinSock2.h>
 #include <stdio.h>
 #include "physical.h"
 
 static unsigned k = 0;
 HANDLE hThreadRead;
 DWORD readThreadId;
+
+#define PORT 7000
+#define DATA_BUFSIZE 256
+
+typedef struct _SOCKET_INFORMATION {
+	OVERLAPPED Overlapped;
+	SOCKET Socket;
+	CHAR Buffer[DATA_BUFSIZE];
+	WSABUF DataBuf;
+	DWORD BytesSEND;
+	DWORD BytesRECV;
+} SOCKET_INFORMATION, *LPSOCKET_INFORMATION;
+
+void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
+	LPWSAOVERLAPPED Overlapped, DWORD InFlags);
+
+DWORD WINAPI WorkerThread(LPVOID lpParameter);
+
+SOCKET AcceptSocket;
 
 /*------------------------------------------------------------------------------------------------------------------
 -- FUNCTION:       create_thread_read
@@ -179,7 +199,9 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 
 	rc = setupSendSocket(); 
 
-
+	if (rc) {
+		OutputDebugString("Error setting up socket!\n");
+	}
 
 
 
