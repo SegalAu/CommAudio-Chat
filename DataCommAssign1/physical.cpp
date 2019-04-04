@@ -24,10 +24,12 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <stdio.h>
+
+#include <queue>
+#include <array>
 #include "physical.h"
 
-
-
+using namespace std; 
 
 static unsigned k = 0;
 HANDLE hThreadRead;
@@ -43,30 +45,35 @@ typedef struct _SOCKET_INFORMATION {
 } SOCKET_INFORMATION, *LPSOCKET_INFORMATION;
 
 
-typedef struct INPUT_DEVICE_INFO {
-
-} input_device_info;
-
-
 void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred, LPWSAOVERLAPPED Overlapped, DWORD InFlags);
-
-
 
 SOCKET AcceptSocket;
 SOCKET sock;
 SOCKADDR_IN InternetAddr;
 
-//buffer
+// 2 buffers to handle simultaneously reading from mic and sending data to socket
 BYTE* waveInBuffer;
+BYTE* waveInBuffer2; 
+
+// 2 buffers to handle simultaneously playing audio data to speaker and reading data from socket
+BYTE* waveOutBuffer;
+BYTE* waveOutBuffer2; 
+
+// Queue to hold input audio data from mic (parsed through by completion routine to send to socket)
+
 
 // SET UP INPUT DEVICE 
-
-// Wave in input device variables
+// i/o input device variables
 HWAVEIN hwi;
+HWAVEOUT hwo; 
+
+// WaveIn Headers (for the two buffers)
 WAVEHDR      WaveInHdr;
+WAVEHDR      WaveInHdr2;
 
 WAVEINCAPS   wic;
-WAVEFORMATEX wfx;
+WAVEFORMATEX wfx;  //input
+WAVEFORMATEX wfx2; //output
 UINT         nDevId;
 UINT         nMaxDevices = waveInGetNumDevs();
 
@@ -97,6 +104,38 @@ DWORD WINAPI create_thread_read(HANDLE hComm, HWND hwnd, char buffer[1], LPDWORD
 	return 0;
 }
 
+
+DWORD WINAPI create_thread_write(HANDLE hComm, HWND hwnd, char buffer[1], LPDWORD nRead) {
+	threadStructReadPoint threader = new threadStructRead(hComm, hwnd, buffer, nRead);
+	hThreadRead = CreateThread(NULL, 0, setupOutputDevice, (LPVOID)threader, 0, &readThreadId);
+	if (!hThreadRead) {
+		OutputDebugString("hThread for write wasn't initialized");
+	}
+
+	return 0;
+}
+
+
+DWORD WINAPI setupOutputDevice(LPVOID voider) {
+
+	// Malloc memory for waveout buffers
+	waveInBuffer = (BYTE*)malloc(DATA_BUFSIZE);
+	waveInBuffer2 = (BYTE*)malloc(DATA_BUFSIZE);
+	hwo = NULL; 
+
+	// Waveformatex for output (same as input)
+	wfx2.wFormatTag = WAVE_FORMAT_PCM;
+	wfx2.nChannels = 1;
+	wfx2.nSamplesPerSec = 20000;
+	wfx2.wBitsPerSample = 8;
+	wfx2.nAvgBytesPerSec = 20000;
+	wfx2.nBlockAlign = 1;
+	wfx2.cbSize = 0;
+
+
+}
+
+
 /*------------------------------------------------------------------------------------------------------------------
 -- FUNCTION:       receiveMessages
 --
@@ -120,69 +159,33 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 	char buffer;
 	DWORD nRead;
 
+
+	// Malloc memory for wavein buffers
 	waveInBuffer = (BYTE*)malloc(DATA_BUFSIZE);
+	waveInBuffer2 = (BYTE*)malloc(DATA_BUFSIZE); 
 
 	MMRESULT     rc;
 
-	// Set up input device
+	// Set up waveformat for input (and output)
 	hwi = NULL;
-	//nPlaybackBufferPos = 0L;  // position in playback buffer
-	//nPlaybackBufferLen = 0L;  // total data in playback buffer
-	//eStatus = StatusOkay;     // reset status
 
-	//for (nDevId = 0; nDevId < nMaxDevices; nDevId++)
-	//{
-	//	rc = waveInGetDevCaps(nDevId, &wic, sizeof(wic));
-	//	if (rc == MMSYSERR_NOERROR)
-	//	{
-	//		// attempt 44.1 kHz stereo if device is capable
+	wfx.wFormatTag =
+		WAVE_FORMAT_PCM;
+	wfx.nChannels = 1;
+	wfx.nSamplesPerSec = 20000;
+	wfx.wBitsPerSample = 8;
+	wfx.nAvgBytesPerSec = 20000;
+	wfx.nBlockAlign = 1;
+	wfx.cbSize = 0;
 
-	//		if (wic.dwFormats & WAVE_FORMAT_4S16)
-	//		{
-	//			wfx.nChannels = 2;      // stereo
-	//			wfx.nSamplesPerSec = 44100;  // 44.1 kHz (44.1 * 1000)
-	//		}
-	//		else
-	//		{
-	//			wfx.nChannels = wic.wChannels;  // use DevCaps # channels
-	//			wfx.nSamplesPerSec = 22050;  // 22.05 kHz (22.05 * 1000)
-	//		}
+	
 
-		wfx.wFormatTag =
-			WAVE_FORMAT_PCM;
-		wfx.nChannels = 1;
-		wfx.nSamplesPerSec = 22050;
-		wfx.wBitsPerSample = 8;
-		wfx.nAvgBytesPerSec = 22050;
-		wfx.nBlockAlign = 1;
-		wfx.cbSize = 0;
+	// open waveform input device
+	//...........................
 
-		/*wfx.wFormatTag = WAVE_FORMAT_PCM;
-		wfx.wBitsPerSample = 8;
-		wfx.nBlockAlign = wfx.nChannels * wfx.wBitsPerSample / 8;
-		wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
-		wfx.cbSize = 0;
-*/
-		// open waveform input device
-		//...........................
+	rc = waveInOpen(&hwi, WAVE_MAPPER, &wfx, (ULONG)waveInProc, (DWORD)hwnd,
+		CALLBACK_FUNCTION);
 
-		rc = waveInOpen(&hwi, nDevId, &wfx, 0, (DWORD)hwnd,
-			CALLBACK_WINDOW);
-
-		//if (rc == MMSYSERR_NOERROR)
-		//	break;
-		//else
-		//{
-		//	/*waveInGetErrorText(rc, msg, MSG_LEN),
-		//		MessageBox(hwnd, msg, NULL, MB_OK);*/
-		//	OutputDebugString("can't open input device!\n");
-		//	return(FALSE);
-		//}
-
-
-
-	/*	}
-	}*/
 
 	// device not found, error condition
 	//..................................
@@ -197,19 +200,110 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 	OutputDebugString("Found input device!\n");
 	
 
+	// Set up and prepare headers for input
+	// First WAVEHDR header (with first wave in buffer)
+	WaveInHdr.lpData = (LPSTR)waveInBuffer;
+	WaveInHdr.dwBufferLength = DATA_BUFSIZE;
+	WaveInHdr.dwBytesRecorded = 0;
+	WaveInHdr.dwUser = 0L;
+	WaveInHdr.dwFlags = 0L;
+	WaveInHdr.dwLoops = 0L;
 
 
-	// Set up Socket
+	WaveInHdr2.lpData = (LPSTR)waveInBuffer2;
+	WaveInHdr2.dwBufferLength = DATA_BUFSIZE;
+	WaveInHdr2.dwBytesRecorded = 0;
+	WaveInHdr2.dwUser = 0L;
+	WaveInHdr2.dwFlags = 0L;
+	WaveInHdr2.dwLoops = 0L;
 
-	rc = setupSendSocket(); 
 
-	if (rc != 0) {
-		OutputDebugString("Error setting up socket!\n");
+	// header preparation and buffer adding for wavein will occur during completion routine
+
+	result = waveInPrepareHeader(hwi, &WaveInHdr, sizeof(WAVEHDR));
+
+	if (result) {
+		OutputDebugString("Error: cannot prepare wave in header 1!\n");
+		return 1;
+	}
+
+	result = waveInPrepareHeader(hwi, &WaveInHdr2, sizeof(WAVEHDR));
+
+	if (result) {
+		OutputDebugString("Error: cannot prepare wave in header 2!\n");
+		return 1;
+	}
+
+	// Insert a wave input buffers
+	result = waveInAddBuffer(hwi, &WaveInHdr, sizeof(WAVEHDR));
+	if (result)
+	{
+		OutputDebugString("Failed to add wave input buffer 1!\n");
+		return 1;
+	}
+
+	result = waveInAddBuffer(hwi, &WaveInHdr2, sizeof(WAVEHDR)); 
+	if (result)
+	{
+		OutputDebugString("Failed to add wave input buffer 2!\n");
+		return 1;
+	}
+
+	result = waveInStart(hwi);
+
+
+
+	if (result != 0) {
+		OutputDebugString("Error starting input device!\n");
 	}
 
 
 
-	return(0);
+	// Handle closing
+	do {} while (waveInUnprepareHeader(hwi, &WaveInHdr, sizeof(WAVEHDR)) == WAVERR_STILLPLAYING); 
+
+	waveInClose(hwi); 
+
+
+
+/*	// Open output device
+	result = waveOutOpen(&hwo, WAVE_MAPPER, &wfx, 0, (DWORD)hwnd, CALLBACK_WINDOW); 
+
+	if (result) {
+		OutputDebugString("Error opening output device!\n");
+	}
+
+	result = waveOutPrepareHeader(hwo, &WaveInHdr, sizeof(WAVEHDR)); 
+
+	if (result) {
+		OutputDebugString("Error: cannot prepare wave out header!\n");
+	}
+
+	
+
+	result = waveOutWrite(hwo, &WaveInHdr, sizeof(WAVEHDR)); 
+
+	if (result) {
+		OutputDebugString("Error: cannot play to output device!\n");
+	}
+*/
+
+
+	// Set up Socket
+
+	
+		rc = setupSendSocket(); 
+
+		if (rc != 0) {
+			OutputDebugString("Error setting up socket!\n");
+		}
+	
+	
+
+
+
+
+	//return(0);
 }
 
 
@@ -552,8 +646,34 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
 			printf("WSASend() failed with error %d\n", WSAGetLastError());
 			return;
 		}
+	}	
+}
+
+
+void CALLBACK waveInProc(
+	HWAVEIN   hwi,
+	UINT      uMsg,
+	DWORD_PTR dwInstance,
+	DWORD_PTR dwParam1,
+	DWORD_PTR dwParam2) {
+
+	switch (uMsg) {
+	case WIM_CLOSE:
+		// Exit! Do clean up operation
+		OutputDebugString("input device closed");
+		break;
+	case WIM_DATA:
+		// Data being entered into input device
+		// 1) Retrieve full buffer and send it to socket
+		// 2) Empty buffer and prepare it to be used again
+		WAVEHDR completedWaveInHeader = *(WAVEHDR*)dwParam1; 
+		completedWaveInHeader.lpData
+
+
+		break;
+	case WIM_OPEN:
+		// Device is being opened
+		OutputDebugString("Input Device found in waveInProc!");
+		break;
 	}
-
-
-	
 }
