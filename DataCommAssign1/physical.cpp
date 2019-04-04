@@ -42,11 +42,35 @@ typedef struct _SOCKET_INFORMATION {
 	DWORD BytesRECV;
 } SOCKET_INFORMATION, *LPSOCKET_INFORMATION;
 
+
+typedef struct INPUT_DEVICE_INFO {
+
+} input_device_info;
+
+
 void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred, LPWSAOVERLAPPED Overlapped, DWORD InFlags);
 
 
 
 SOCKET AcceptSocket;
+SOCKET sock;
+SOCKADDR_IN InternetAddr;
+
+//buffer
+BYTE* waveInBuffer;
+
+// SET UP INPUT DEVICE 
+
+// Wave in input device variables
+HWAVEIN hwi;
+WAVEHDR      WaveInHdr;
+
+WAVEINCAPS   wic;
+WAVEFORMATEX wfx;
+UINT         nDevId;
+UINT         nMaxDevices = waveInGetNumDevs();
+
+MMRESULT result = 0;
 
 
 /*------------------------------------------------------------------------------------------------------------------
@@ -96,20 +120,85 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 	char buffer;
 	DWORD nRead;
 
+	waveInBuffer = (BYTE*)malloc(DATA_BUFSIZE);
 	
-	const int NUMPTS = 44100 * 10;   // 10 seconds
 	
-	HWAVEIN hwi;
-	WAVEHDR      WaveInHdr;
+	//HWAVEIN hwi;
+	//WAVEHDR      WaveInHdr;
 
-	WAVEINCAPS   wic;
-	WAVEFORMATEX wfx;
-	UINT         nDevId;
+	//WAVEINCAPS   wic;
+	//WAVEFORMATEX wfx;
+	//UINT         nDevId;
+	//MMRESULT     rc;
+	//UINT         nMaxDevices = waveInGetNumDevs();
+
+	//MMRESULT result = 0; 
+
+	//hwi = NULL;
+	////nPlaybackBufferPos = 0L;  // position in playback buffer
+	////nPlaybackBufferLen = 0L;  // total data in playback buffer
+	////eStatus = StatusOkay;     // reset status
+
+	//for (nDevId = 0; nDevId < nMaxDevices; nDevId++)
+	//{
+	//	rc = waveInGetDevCaps(nDevId, &wic, sizeof(wic));
+	//	if (rc == MMSYSERR_NOERROR)
+	//	{
+	//		// attempt 44.1 kHz stereo if device is capable
+
+	//		if (wic.dwFormats & WAVE_FORMAT_4S16)
+	//		{
+	//			wfx.nChannels = 2;      // stereo
+	//			wfx.nSamplesPerSec = 44100;  // 44.1 kHz (44.1 * 1000)
+	//		}
+	//		else
+	//		{
+	//			wfx.nChannels = wic.wChannels;  // use DevCaps # channels
+	//			wfx.nSamplesPerSec = 22050;  // 22.05 kHz (22.05 * 1000)
+	//		}
+
+	//		wfx.wFormatTag = WAVE_FORMAT_PCM;
+	//		wfx.wBitsPerSample = 8;
+	//		wfx.nBlockAlign = wfx.nChannels * wfx.wBitsPerSample / 8;
+	//		wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
+	//		wfx.cbSize = 0;
+
+	//		// open waveform input device
+	//		//...........................
+
+	//		rc = waveInOpen(&hwi, nDevId, &wfx, 0l, (DWORD)hwnd,
+	//			WAVE_FORMAT_DIRECT);
+
+	//		if (rc == MMSYSERR_NOERROR)
+	//			break;
+	//		else
+	//		{
+	//			/*waveInGetErrorText(rc, msg, MSG_LEN),
+	//				MessageBox(hwnd, msg, NULL, MB_OK);*/
+	//			OutputDebugString("can't open input device!\n");
+	//			return(FALSE);
+	//		}
+
+
+
+	//	}
+	//}
+
+	//// device not found, error condition
+	////..................................
+
+	//if (hwi == NULL)
+	//{
+	//	OutputDebugString("device not found!\n");
+	//	return(FALSE);
+	//}
+
+	////Successfully found input device
+	//OutputDebugString("Found input device!\n");
+
 	MMRESULT     rc;
-	UINT         nMaxDevices = waveInGetNumDevs();
 
-	MMRESULT result = 0; 
-
+	// Set up input device
 	hwi = NULL;
 	//nPlaybackBufferPos = 0L;  // position in playback buffer
 	//nPlaybackBufferLen = 0L;  // total data in playback buffer
@@ -171,29 +260,9 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 
 	//Successfully found input device
 	OutputDebugString("Found input device!\n");
+	
 
 
-	// Set up and prepare header for input
-	WaveInHdr.lpData = (LPSTR)hwi;
-	WaveInHdr.dwBufferLength = 256;
-	WaveInHdr.dwBytesRecorded = 0;
-	WaveInHdr.dwUser = 0L;
-	WaveInHdr.dwFlags = 0L;
-	WaveInHdr.dwLoops = 0L;
-	result = waveInPrepareHeader(hwi, &WaveInHdr, sizeof(WAVEHDR));
-
-	if (result) {
-		OutputDebugString("Error: cannot prepare wave in header!\n");
-		return 1;
-	}
-
-	// Insert a wave input buffer
-	result = waveInAddBuffer(hwi, &WaveInHdr, sizeof(WAVEHDR));
-	if (result)
-	{
-		OutputDebugString("Failed to read block from device!\n");
-		return 1;
-	}
 
 	// Set up Socket
 
@@ -217,36 +286,23 @@ int setupSendSocket() {
 	int i, nBufSize, err, Ret;
 	HANDLE ThreadHandle;
 	DWORD ThreadId;
-	SOCKET sock;
+	
 	char *buf, *buf_ptr;
 	/*struct sockaddr_in sin;*/
-	SOCKADDR_IN InternetAddr; 
+
 	WSADATA stWSAData;
 	WSAEVENT AcceptEvent;
 	WORD wVersionRequested = MAKEWORD(2, 2);
 
 
+
 	int portNum;
 	char * ipAddr; 
 
-	//if (argc != 4)
-	//{
-	//	printf("Usage: sender <Remote-Address> <Packet-Size> <Port>\n");
-	//	printf("		Enter the Remote Address in dotted IP format\n");
-	//	printf("		Packet size is in Bytes\n");
-	//	exit(1);
-	//}
-	//else
-	//{
-	//	//printf("%s %s %s\n", argv[0], argv[1], argv[2]) ;
-	//	nBufSize = atoi(argv[2]);
-	//	printf("Buffer size is %d\n", nBufSize);
-	//}
-
 	//HARDCODED VALUES
-	nBufSize = 256;
+	nBufSize = DATA_BUFSIZE;
 	portNum = 7000; 
-	ipAddr = "192.168.0.17";
+	ipAddr = "127.0.0.1";
 
 
 	buf = (char*)malloc(nBufSize);
@@ -277,30 +333,9 @@ int setupSendSocket() {
 		
 
 	InternetAddr.sin_family = AF_INET;
-	InternetAddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	InternetAddr.sin_addr.s_addr = inet_addr(ipAddr);
 	InternetAddr.sin_port = htons(PORT);				//7000
 
-	//buf_ptr = buf;
-
-	//// Set the socket options such that the send buffer size is set at the
-	//// application layer
-	//if (err = setsockopt(sock, SOL_SOCKET, SO_SNDBUF, buf_ptr, sizeof(buf)) != 0)
-	//{
-	//	printf("Error in setsockopt!\n");
-	//	exit(3);
-	//}
-	//memset(&sin, 0, sizeof(sin));
-	//sin.sin_family = AF_INET;	 // Specify the Internet (TCP/IP) Address family
-	//sin.sin_port = htons(portNum); // Convert to network byte order
-
-	//
-
-	//// Ensure that the IP string is a legitimate address (dotted decimal)
-	//if ((sin.sin_addr.s_addr = inet_addr(ipAddr)) == INADDR_NONE)
-	//{
-	//	printf("Invalid IP address\n");
-	//	exit(3);
-	//}
 
 	if (bind(sock, (PSOCKADDR)&InternetAddr,
 		sizeof(InternetAddr)) == SOCKET_ERROR)
@@ -319,15 +354,7 @@ int setupSendSocket() {
 		printf("listen() failed with error %d\n", WSAGetLastError());
 		return 2;
 	}*/
-
-	if ((AcceptEvent = WSACreateEvent()) == WSA_INVALID_EVENT)
-	{
-		OutputDebugString("WSACreateEvent() failed with error %d\n");
-		printf("WSACreateEvent() failed with error %d\n", WSAGetLastError());
-		return 3;
-	}
-
-
+	
 	OutputDebugString("IP Address & Socket Okay\n");
 	printf("Socket is %d\n", sock);
 	OutputDebugString("We have ignition!\n");
@@ -335,22 +362,15 @@ int setupSendSocket() {
 
 	// Worker thread to service completed I/O Requests
 
-	if ((ThreadHandle = CreateThread(NULL, 0, WorkerThread, (LPVOID)AcceptEvent, 0, &ThreadId)) == NULL)
+
+	if ((ThreadHandle = CreateThread(NULL, 0, WorkerThread, (LPVOID)sock, 0, &ThreadId)) == NULL)
 	{
 		printf("CreateThread failed with error %d\n", GetLastError());
 		return 1;
 	}
 
-	while (TRUE)
-	{
-		AcceptSocket = accept(sock, NULL, NULL);
-
-		if (WSASetEvent(AcceptEvent) == FALSE)
-		{
-			printf("WSASetEvent failed with error %d\n", WSAGetLastError());
-			return 2; 
-		}
-	}
+	OutputDebugString("setupSendSocket thread func ended!\n");
+	return 0; 
 
 }
 
@@ -376,70 +396,164 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
 	WSAEVENT EventArray[1];
 	DWORD Index;
 	DWORD RecvBytes;
+	WSAEVENT dummyEvent;
+
+	if ((dummyEvent = WSACreateEvent()) == WSA_INVALID_EVENT) {
+		OutputDebugString("ERROR: INVALID EVENT!");
+	}
 
 	// Save the accept event in the event array.
 
-	EventArray[0] = (WSAEVENT)lpParameter;
+	EventArray[0] = dummyEvent;
+	WSASetEvent(EventArray[0]); 
+
+	// Fill in the details of our accepted socket.		
+
+	if ((SocketInfo = (LPSOCKET_INFORMATION)GlobalAlloc(GPTR,
+		sizeof(SOCKET_INFORMATION))) == NULL)
+	{
+		OutputDebugString("global alloc failed!\n");
+		printf("GlobalAlloc() failed with error %d\n", GetLastError());
+		return FALSE;
+	}
+
+
+
+
+	// Set up and prepare header for input
+	WaveInHdr.lpData = (LPSTR)waveInBuffer;
+	WaveInHdr.dwBufferLength = DATA_BUFSIZE;
+	WaveInHdr.dwBytesRecorded = 0;
+	WaveInHdr.dwUser = 0L;
+	WaveInHdr.dwFlags = 0L;
+	WaveInHdr.dwLoops = 0L;
+	result = waveInPrepareHeader(hwi, &WaveInHdr, sizeof(WAVEHDR));
+
+	if (result) {
+		OutputDebugString("Error: cannot prepare wave in header!\n");
+		return 1;
+	}
+
+	// Insert a wave input buffer
+	result = waveInAddBuffer(hwi, &WaveInHdr, sizeof(WAVEHDR));
+	if (result)
+	{
+		OutputDebugString("Failed to add wave input buffer!\n");
+		return 1;
+	}
+
+	result = waveInStart(hwi);
+
+
+
+	if (result != 0) {
+		OutputDebugString("Error starting input device!\n");
+	}
+	
+
+	
+		
+		
+
 
 	while (TRUE)
 	{
-		// Wait for accept() to signal an event and also process WorkerRoutine() returns.
+		
+			
 
-		while (TRUE)
+		OutputDebugString("checkpoint B!\n");
+
+
+		Index = WSAWaitForMultipleEvents(1, EventArray, FALSE, WSA_INFINITE, TRUE);
+
+		if (Index == WSA_WAIT_FAILED)
 		{
-			Index = WSAWaitForMultipleEvents(1, EventArray, FALSE, WSA_INFINITE, TRUE);
-
-			if (Index == WSA_WAIT_FAILED)
-			{
-				printf("WSAWaitForMultipleEvents failed with error %d\n", WSAGetLastError());
-				return FALSE;
-			}
-
-			if (Index != WAIT_IO_COMPLETION)
-			{
-				// An accept() call event is ready - break the wait loop
-				break;
-			}
-		}
-
-		WSAResetEvent(EventArray[Index - WSA_WAIT_EVENT_0]);
-
-		// Create a socket information structure to associate with the accepted socket.
-
-		if ((SocketInfo = (LPSOCKET_INFORMATION)GlobalAlloc(GPTR,
-			sizeof(SOCKET_INFORMATION))) == NULL)
-		{
-			printf("GlobalAlloc() failed with error %d\n", GetLastError());
+			OutputDebugString("WSA wait failed!\n");
+			printf("WSAWaitForMultipleEvents failed with error %d\n", WSAGetLastError());
 			return FALSE;
 		}
 
-		// Fill in the details of our accepted socket.
+		else if (Index == WAIT_IO_COMPLETION) {
+			OutputDebugString("index = wait io completion \n");
+		}
+		else if (Index == 0) {
+			//reset dummy event
+			WSAResetEvent(EventArray[0]);
+		}
+		else {
+			OutputDebugString("COULD NOT RESET EVENT!\n");
+		}
 
-		// TODO: TAKE INPUT AUDIO DATA FROM MIC AND FILL BUFFER
+		//if (Index != WAIT_IO_COMPLETION)
+		//{				
+		//	// An accept() call event is ready - break the wait loop
 
-		SocketInfo->Socket = AcceptSocket;
+		//}
+
+
+
+
+		SocketInfo->Socket = sock;
 		ZeroMemory(&(SocketInfo->Overlapped), sizeof(WSAOVERLAPPED));
 		SocketInfo->BytesSEND = 0;
 		SocketInfo->BytesRECV = 0;
+
+		/*memcpy(SocketInfo->DataBuf.buf, waveInBuffer, DATA_BUFSIZE); */
+
 		SocketInfo->DataBuf.len = DATA_BUFSIZE;
+		
 		SocketInfo->DataBuf.buf = SocketInfo->Buffer;
+	
 
 		Flags = 0;
-		if (WSARecv(SocketInfo->Socket, &(SocketInfo->DataBuf), 1, &RecvBytes, &Flags,
-			&(SocketInfo->Overlapped), WorkerRoutine) == SOCKET_ERROR)
+
+
+		if (WSASendTo(SocketInfo->Socket,
+			&(SocketInfo->DataBuf),
+			1,
+			&RecvBytes,
+			Flags,
+			(SOCKADDR *)&InternetAddr,
+			sizeof(InternetAddr),
+			&(SocketInfo->Overlapped),
+			WorkerRoutine) == SOCKET_ERROR)
 		{
 			if (WSAGetLastError() != WSA_IO_PENDING)
 			{
+				char msgBuffy[20];
+				OutputDebugString("WSASendTo Error: ");
+				OutputDebugString(_itoa(WSAGetLastError(), msgBuffy, 10));
+				OutputDebugString("\n");
 				printf("WSARecv() failed with error %d\n", WSAGetLastError());
 				return FALSE;
 			}
 		}
+		
+		
+		//clear waveInBuffer
+		memset(waveInBuffer, 0, DATA_BUFSIZE);
 
-		printf("Socket %d connected\n", AcceptSocket);
+		//// Insert a wave input buffer
+		//result = waveInAddBuffer(hwi, &WaveInHdr, sizeof(WAVEHDR));
+		//if (result)
+		//{
+		//	OutputDebugString("Failed to add wave input buffer!\n");
+		//	return 1;
+		//}
+		//
+		
+		
 	}
+	
 
 	return TRUE;
 }
+
+
+
+// COMPLETION ROUTINE 
+
+
 
 void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
 	LPWSAOVERLAPPED Overlapped, DWORD InFlags)
@@ -471,58 +585,40 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
 	// this means a WSARecv call just completed so update the BytesRECV field
 	// with the BytesTransferred value from the completed WSARecv() call.
 
-	if (SI->BytesRECV == 0)
+	//if (SI->BytesRECV == 0)
+	//{
+	//	SI->BytesRECV = BytesTransferred;
+	//	SI->BytesSEND = 0;
+	//}
+	//else
+	//{
+	//	SI->BytesSEND += BytesTransferred;
+	//}
+
+
+	// TODO: TAKE INPUT AUDIO DATA FROM MIC AND FILL BUFFER
+
+	OutputDebugString("Reached completion routine\n");
+
+
+
+	// Take buffer with audio data and send to socket
+
+	ZeroMemory(&(SI->Overlapped), sizeof(WSAOVERLAPPED));
+
+	memcpy(SI->DataBuf.buf, waveInAddBuffer, DATA_BUFSIZE);
+	SI->DataBuf.len = DATA_BUFSIZE;
+
+	if (WSASendTo(SI->Socket, &(SI->DataBuf), 1, &SendBytes, 0, (SOCKADDR *)&InternetAddr,
+		sizeof(InternetAddr), &(SI->Overlapped), WorkerRoutine) == SOCKET_ERROR)
 	{
-		SI->BytesRECV = BytesTransferred;
-		SI->BytesSEND = 0;
-	}
-	else
-	{
-		SI->BytesSEND += BytesTransferred;
-	}
-
-	if (SI->BytesRECV > SI->BytesSEND)
-	{
-
-		// Post another WSASend() request.
-		// Since WSASend() is not gauranteed to send all of the bytes requested,
-		// continue posting WSASend() calls until all received bytes are sent.
-
-		ZeroMemory(&(SI->Overlapped), sizeof(WSAOVERLAPPED));
-
-		SI->DataBuf.buf = SI->Buffer + SI->BytesSEND;
-		SI->DataBuf.len = SI->BytesRECV - SI->BytesSEND;
-
-		if (WSASend(SI->Socket, &(SI->DataBuf), 1, &SendBytes, 0,
-			&(SI->Overlapped), WorkerRoutine) == SOCKET_ERROR)
+		if (WSAGetLastError() != WSA_IO_PENDING)
 		{
-			if (WSAGetLastError() != WSA_IO_PENDING)
-			{
-				printf("WSASend() failed with error %d\n", WSAGetLastError());
-				return;
-			}
+			printf("WSASend() failed with error %d\n", WSAGetLastError());
+			return;
 		}
 	}
-	else
-	{
-		SI->BytesRECV = 0;
 
-		// Now that there are no more bytes to send post another WSARecv() request.
 
-		Flags = 0;
-		ZeroMemory(&(SI->Overlapped), sizeof(WSAOVERLAPPED));
-
-		SI->DataBuf.len = DATA_BUFSIZE;
-		SI->DataBuf.buf = SI->Buffer;
-
-		if (WSARecv(SI->Socket, &(SI->DataBuf), 1, &RecvBytes, &Flags,
-			&(SI->Overlapped), WorkerRoutine) == SOCKET_ERROR)
-		{
-			if (WSAGetLastError() != WSA_IO_PENDING)
-			{
-				printf("WSARecv() failed with error %d\n", WSAGetLastError());
-				return;
-			}
-		}
-	}
+	
 }
