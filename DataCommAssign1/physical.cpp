@@ -121,23 +121,14 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 	DWORD nRead;
 
 	waveInBuffer = (BYTE*)malloc(DATA_BUFSIZE);
-	
-	
-	//HWAVEIN hwi;
-	//WAVEHDR      WaveInHdr;
 
-	//WAVEINCAPS   wic;
-	//WAVEFORMATEX wfx;
-	//UINT         nDevId;
-	//MMRESULT     rc;
-	//UINT         nMaxDevices = waveInGetNumDevs();
+	MMRESULT     rc;
 
-	//MMRESULT result = 0; 
-
-	//hwi = NULL;
-	////nPlaybackBufferPos = 0L;  // position in playback buffer
-	////nPlaybackBufferLen = 0L;  // total data in playback buffer
-	////eStatus = StatusOkay;     // reset status
+	// Set up input device
+	hwi = NULL;
+	//nPlaybackBufferPos = 0L;  // position in playback buffer
+	//nPlaybackBufferLen = 0L;  // total data in playback buffer
+	//eStatus = StatusOkay;     // reset status
 
 	//for (nDevId = 0; nDevId < nMaxDevices; nDevId++)
 	//{
@@ -157,97 +148,41 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 	//			wfx.nSamplesPerSec = 22050;  // 22.05 kHz (22.05 * 1000)
 	//		}
 
-	//		wfx.wFormatTag = WAVE_FORMAT_PCM;
-	//		wfx.wBitsPerSample = 8;
-	//		wfx.nBlockAlign = wfx.nChannels * wfx.wBitsPerSample / 8;
-	//		wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
-	//		wfx.cbSize = 0;
+		wfx.wFormatTag =
+			WAVE_FORMAT_PCM;
+		wfx.nChannels = 1;
+		wfx.nSamplesPerSec = 22050;
+		wfx.wBitsPerSample = 8;
+		wfx.nAvgBytesPerSec = 22050;
+		wfx.nBlockAlign = 1;
+		wfx.cbSize = 0;
 
-	//		// open waveform input device
-	//		//...........................
+		/*wfx.wFormatTag = WAVE_FORMAT_PCM;
+		wfx.wBitsPerSample = 8;
+		wfx.nBlockAlign = wfx.nChannels * wfx.wBitsPerSample / 8;
+		wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
+		wfx.cbSize = 0;
+*/
+		// open waveform input device
+		//...........................
 
-	//		rc = waveInOpen(&hwi, nDevId, &wfx, 0l, (DWORD)hwnd,
-	//			WAVE_FORMAT_DIRECT);
+		rc = waveInOpen(&hwi, nDevId, &wfx, 0, (DWORD)hwnd,
+			CALLBACK_WINDOW);
 
-	//		if (rc == MMSYSERR_NOERROR)
-	//			break;
-	//		else
-	//		{
-	//			/*waveInGetErrorText(rc, msg, MSG_LEN),
-	//				MessageBox(hwnd, msg, NULL, MB_OK);*/
-	//			OutputDebugString("can't open input device!\n");
-	//			return(FALSE);
-	//		}
-
-
-
-	//	}
-	//}
-
-	//// device not found, error condition
-	////..................................
-
-	//if (hwi == NULL)
-	//{
-	//	OutputDebugString("device not found!\n");
-	//	return(FALSE);
-	//}
-
-	////Successfully found input device
-	//OutputDebugString("Found input device!\n");
-
-	MMRESULT     rc;
-
-	// Set up input device
-	hwi = NULL;
-	//nPlaybackBufferPos = 0L;  // position in playback buffer
-	//nPlaybackBufferLen = 0L;  // total data in playback buffer
-	//eStatus = StatusOkay;     // reset status
-
-	for (nDevId = 0; nDevId < nMaxDevices; nDevId++)
-	{
-		rc = waveInGetDevCaps(nDevId, &wic, sizeof(wic));
-		if (rc == MMSYSERR_NOERROR)
-		{
-			// attempt 44.1 kHz stereo if device is capable
-
-			if (wic.dwFormats & WAVE_FORMAT_4S16)
-			{
-				wfx.nChannels = 2;      // stereo
-				wfx.nSamplesPerSec = 44100;  // 44.1 kHz (44.1 * 1000)
-			}
-			else
-			{
-				wfx.nChannels = wic.wChannels;  // use DevCaps # channels
-				wfx.nSamplesPerSec = 22050;  // 22.05 kHz (22.05 * 1000)
-			}
-
-			wfx.wFormatTag = WAVE_FORMAT_PCM;
-			wfx.wBitsPerSample = 8;
-			wfx.nBlockAlign = wfx.nChannels * wfx.wBitsPerSample / 8;
-			wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
-			wfx.cbSize = 0;
-
-			// open waveform input device
-			//...........................
-
-			rc = waveInOpen(&hwi, nDevId, &wfx, 0l, (DWORD)hwnd,
-				WAVE_FORMAT_DIRECT);
-
-			if (rc == MMSYSERR_NOERROR)
-				break;
-			else
-			{
-				/*waveInGetErrorText(rc, msg, MSG_LEN),
-					MessageBox(hwnd, msg, NULL, MB_OK);*/
-				OutputDebugString("can't open input device!\n");
-				return(FALSE);
-			}
+		//if (rc == MMSYSERR_NOERROR)
+		//	break;
+		//else
+		//{
+		//	/*waveInGetErrorText(rc, msg, MSG_LEN),
+		//		MessageBox(hwnd, msg, NULL, MB_OK);*/
+		//	OutputDebugString("can't open input device!\n");
+		//	return(FALSE);
+		//}
 
 
 
-		}
-	}
+	/*	}
+	}*/
 
 	// device not found, error condition
 	//..................................

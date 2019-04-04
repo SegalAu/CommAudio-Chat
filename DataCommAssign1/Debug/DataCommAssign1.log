@@ -4,10 +4,10 @@ c:\users\administrator\desktop\project\datacommassign1\resource.h(12): warning C
   physical.cpp
 c:\users\administrator\desktop\project\datacommassign1\physical.cpp(121): warning C4101: 'nRead': unreferenced local variable
 c:\users\administrator\desktop\project\datacommassign1\physical.cpp(120): warning C4101: 'buffer': unreferenced local variable
-c:\users\administrator\desktop\project\datacommassign1\physical.cpp(294): warning C4101: 'AcceptEvent': unreferenced local variable
-c:\users\administrator\desktop\project\datacommassign1\physical.cpp(290): warning C4101: 'buf_ptr': unreferenced local variable
-c:\users\administrator\desktop\project\datacommassign1\physical.cpp(286): warning C4101: 'err': unreferenced local variable
-c:\users\administrator\desktop\project\datacommassign1\physical.cpp(561): warning C4101: 'RecvBytes': unreferenced local variable
-c:\users\administrator\desktop\project\datacommassign1\physical.cpp(562): warning C4101: 'Flags': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(229): warning C4101: 'AcceptEvent': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(225): warning C4101: 'buf_ptr': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(221): warning C4101: 'err': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(496): warning C4101: 'RecvBytes': unreferenced local variable
+c:\users\administrator\desktop\project\datacommassign1\physical.cpp(497): warning C4101: 'Flags': unreferenced local variable
   Generating Code...
   DataCommAssign1.vcxproj -> C:\Users\Administrator\Desktop\project\Debug\DataCommAssign1.exe
