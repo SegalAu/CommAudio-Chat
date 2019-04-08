@@ -1,14 +1,9 @@
 ﻿  physical.cpp
-c:\users\a01000835\documents\commaudio\commaudio-chat\datacommassign1\physical.cpp(126): warning C4101: 'nRead': unreferenced local variable
-c:\users\a01000835\documents\commaudio\commaudio-chat\datacommassign1\physical.cpp(125): warning C4101: 'buffer': unreferenced local variable
-c:\users\a01000835\documents\commaudio\commaudio-chat\datacommassign1\physical.cpp(275): warning C4101: 'AcceptEvent': unreferenced local variable
-c:\users\a01000835\documents\commaudio\commaudio-chat\datacommassign1\physical.cpp(271): warning C4101: 'buf_ptr': unreferenced local variable
-c:\users\a01000835\documents\commaudio\commaudio-chat\datacommassign1\physical.cpp(267): warning C4101: 'err': unreferenced local variable
-c:\users\a01000835\documents\commaudio\commaudio-chat\datacommassign1\physical.cpp(542): warning C4101: 'RecvBytes': unreferenced local variable
-c:\users\a01000835\documents\commaudio\commaudio-chat\datacommassign1\physical.cpp(543): warning C4101: 'Flags': unreferenced local variable
-  application.cpp
-c:\users\a01000835\documents\commaudio\commaudio-chat\datacommassign1\resource.h(12): warning C4005: 'IDM_EXIT': macro redefinition
-  c:\users\a01000835\documents\commaudio\commaudio-chat\datacommassign1\header.h(23): note: see previous definition of 'IDM_EXIT'
-  Generating Code...
-c:\users\a01000835\documents\commaudio\commaudio-chat\datacommassign1\physical.cpp(259): warning C4715: 'setupInputDevice': not all control paths return a value
-  DataCommAssign1.vcxproj -> C:\Users\A01000835\Documents\CommAudio\CommAudio-Chat\Debug\DataCommAssign1.exe
+c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(165): warning C4101: 'nRead': unreferenced local variable
+c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(164): warning C4101: 'buffer': unreferenced local variable
+c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(332): warning C4101: 'AcceptEvent': unreferenced local variable
+c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(328): warning C4101: 'buf_ptr': unreferenced local variable
+c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(324): warning C4101: 'err': unreferenced local variable
+c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(599): warning C4101: 'RecvBytes': unreferenced local variable
+c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(600): warning C4101: 'Flags': unreferenced local variable
+  DataCommAssign1.vcxproj -> C:\Users\A01000835\Documents\CommAudio-Chat\Debug\DataCommAssign1.exe

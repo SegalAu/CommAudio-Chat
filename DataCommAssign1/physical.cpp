@@ -51,16 +51,21 @@ SOCKET AcceptSocket;
 SOCKET sock;
 SOCKADDR_IN InternetAddr;
 
+// zeroed buffer for empty dQueue
+BYTE* zeroBuffer; 
+
 // 2 buffers to handle simultaneously reading from mic and sending data to socket
 BYTE* waveInBuffer;
 BYTE* waveInBuffer2; 
+
 
 // 2 buffers to handle simultaneously playing audio data to speaker and reading data from socket
 BYTE* waveOutBuffer;
 BYTE* waveOutBuffer2; 
 
 // Queue to hold input audio data from mic (parsed through by completion routine to send to socket)
-
+typedef queue<BYTE *> socketDataQueue; 
+socketDataQueue dQueue; 
 
 // SET UP INPUT DEVICE 
 // i/o input device variables
@@ -132,7 +137,7 @@ DWORD WINAPI setupOutputDevice(LPVOID voider) {
 	wfx2.nBlockAlign = 1;
 	wfx2.cbSize = 0;
 
-
+	return 0;
 }
 
 
@@ -163,6 +168,9 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 	// Malloc memory for wavein buffers
 	waveInBuffer = (BYTE*)malloc(DATA_BUFSIZE);
 	waveInBuffer2 = (BYTE*)malloc(DATA_BUFSIZE); 
+	zeroBuffer = (BYTE*)malloc(DATA_BUFSIZE); 
+
+	memset(zeroBuffer, 0, DATA_BUFSIZE); 
 
 	MMRESULT     rc;
 
@@ -260,9 +268,9 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 
 
 	// Handle closing
-	do {} while (waveInUnprepareHeader(hwi, &WaveInHdr, sizeof(WAVEHDR)) == WAVERR_STILLPLAYING); 
+	/*do {} while (waveInUnprepareHeader(hwi, &WaveInHdr, sizeof(WAVEHDR)) == WAVERR_STILLPLAYING); 
 
-	waveInClose(hwi); 
+	waveInClose(hwi); */
 
 
 
@@ -292,11 +300,11 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 	// Set up Socket
 
 	
-		rc = setupSendSocket(); 
+	rc = setupSendSocket(); 
 
-		if (rc != 0) {
-			OutputDebugString("Error setting up socket!\n");
-		}
+	if (rc != 0) {
+		OutputDebugString("Error setting up socket!\n");
+	}
 	
 	
 
@@ -304,6 +312,7 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 
 
 	//return(0);
+	return(0);
 }
 
 
@@ -627,16 +636,29 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
 
 	// TODO: TAKE INPUT AUDIO DATA FROM MIC AND FILL BUFFER
 
+	/*
+		1) Pop off next BYTE stream buffer to be sent to socket
+		2) Copy it to socket struct buffer
+		3) free BYTE stream buffer
+	
+	*/
+
 	OutputDebugString("Reached completion routine\n");
-
-
-
-	// Take buffer with audio data and send to socket
-
+	
 	ZeroMemory(&(SI->Overlapped), sizeof(WSAOVERLAPPED));
 
-	memcpy(SI->DataBuf.buf, waveInAddBuffer, DATA_BUFSIZE);
-	SI->DataBuf.len = DATA_BUFSIZE;
+	if (!dQueue.empty()) {
+		memcpy(SI->DataBuf.buf, dQueue.front(), DATA_BUFSIZE);			// Copy next BYTE stream buffer to be sent to socket (from dQueue)
+		dQueue.pop();													// Pop off BYTE stream buffer that was just copied (from dQueue)
+		SI->DataBuf.len = DATA_BUFSIZE;									// Designated buffer size
+	}
+	else {																// if dQueue is empty
+		OutputDebugString("dQueue is empty!\n");
+		memcpy(SI->DataBuf.buf, zeroBuffer, DATA_BUFSIZE); 
+		SI->DataBuf.len = DATA_BUFSIZE;
+	}
+
+	
 
 	if (WSASendTo(SI->Socket, &(SI->DataBuf), 1, &SendBytes, 0, (SOCKADDR *)&InternetAddr,
 		sizeof(InternetAddr), &(SI->Overlapped), WorkerRoutine) == SOCKET_ERROR)
@@ -646,7 +668,13 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred,
 			printf("WSASend() failed with error %d\n", WSAGetLastError());
 			return;
 		}
-	}	
+		else {
+			OutputDebugString("output pending (Completion Routine)!\n");
+		}
+	}
+	else {
+		OutputDebugString("sending data!\n");
+	}
 }
 
 
@@ -658,22 +686,46 @@ void CALLBACK waveInProc(
 	DWORD_PTR dwParam2) {
 
 	switch (uMsg) {
-	case WIM_CLOSE:
-		// Exit! Do clean up operation
-		OutputDebugString("input device closed");
-		break;
-	case WIM_DATA:
-		// Data being entered into input device
-		// 1) Retrieve full buffer and send it to socket
-		// 2) Empty buffer and prepare it to be used again
-		WAVEHDR completedWaveInHeader = *(WAVEHDR*)dwParam1; 
-		completedWaveInHeader.lpData
+		case WIM_CLOSE:
+		{
+			// Exit! Do clean up operation
+			OutputDebugString("input device closed");
+			break;
+		}			
+		case WIM_DATA:
+		{
+			OutputDebugString("RECEIVED DATA FROM INPUT DEVICE!\n");
+			/*
+			Data being entered into input device
+			 1) Retrieve full buffer and transfer data to new temp buffer
+			 2) Append temp buffer to queue of buffers
+			 3) Empty full buffer and add it back to input device wave header
+			*/
+			// 1)
+			WAVEHDR completedWaveInHeader = *(WAVEHDR*)dwParam1;
+			BYTE* inputSocketBuffer = (BYTE*)malloc(DATA_BUFSIZE);						// alloc for buffer to be sent to queue of buffers
+			inputSocketBuffer = (BYTE*)completedWaveInHeader.lpData;					// temp buffer is filled with recently filled buffer
+
+			// 2)
+			dQueue.push(inputSocketBuffer);												// pushed temp buffer to queue of buffers to be sent to socket
 
 
-		break;
-	case WIM_OPEN:
-		// Device is being opened
-		OutputDebugString("Input Device found in waveInProc!");
-		break;
+			// 3)
+
+			memset(completedWaveInHeader.lpData, 0, DATA_BUFSIZE); 						// clear filled buffer
+			result = waveInAddBuffer(hwi, &completedWaveInHeader, sizeof(WAVEHDR));		// Add cleared buffer back to input device wave header
+			if (result)
+			{
+				OutputDebugString("Failed to add wave in input buffer (from WIM_DATA)!\n");
+				exit(1);
+			}
+			break;
+		}
+		case WIM_OPEN:
+		{
+			// Device is being opened
+			OutputDebugString("Input Device found in waveInProc\n!");
+			break;
+		}
 	}
 }
