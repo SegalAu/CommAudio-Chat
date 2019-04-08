@@ -1,5 +1,5 @@
 #define PORT 7000
-#define DATA_BUFSIZE 5000
+#define DATA_BUFSIZE 1000
 
 
 typedef struct threadStructWrite {
