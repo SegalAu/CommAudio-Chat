@@ -206,9 +206,9 @@ DWORD WINAPI setupInputDevice(LPVOID voider) {
 	wfx.wFormatTag =
 		WAVE_FORMAT_PCM;
 	wfx.nChannels = 1;
-	wfx.nSamplesPerSec = 20000;
+	wfx.nSamplesPerSec = 44100;
 	wfx.wBitsPerSample = 8;
-	wfx.nAvgBytesPerSec = 20000;
+	wfx.nAvgBytesPerSec = 44100;
 	wfx.nBlockAlign = 1;
 	wfx.cbSize = 0;
 

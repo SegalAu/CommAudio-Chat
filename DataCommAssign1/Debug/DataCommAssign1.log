@@ -5,6 +5,8 @@ c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\resource.h
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(184): warning C4101: 'nRead': unreferenced local variable
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(183): warning C4101: 'buffer': unreferenced local variable
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(367): warning C4101: 'AcceptEvent': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(363): warning C4101: 'buf': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(359): warning C4101: 'i': unreferenced local variable
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(363): warning C4101: 'buf_ptr': unreferenced local variable
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(359): warning C4101: 'err': unreferenced local variable
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(653): warning C4101: 'RecvBytes': unreferenced local variable
