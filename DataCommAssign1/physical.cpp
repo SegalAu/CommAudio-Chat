@@ -50,6 +50,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred, LPWSAOVERLAPPED
 SOCKET AcceptSocket;
 SOCKET sock;
 SOCKADDR_IN InternetAddr;
+SOCKADDR_IN InternetAddr2;  // any ip_addr
 
 // zeroed buffer for empty dQueue
 BYTE* zeroBuffer; 
@@ -350,7 +351,7 @@ int setupSendSocket() {
 	//HARDCODED VALUES
 	nBufSize = DATA_BUFSIZE;
 	portNum = 7000; 
-	ipAddr = "127.0.0.1";
+	ipAddr = "192.168.0.18";
 
 
 	buf = (char*)malloc(nBufSize);
@@ -382,13 +383,19 @@ int setupSendSocket() {
 
 	InternetAddr.sin_family = AF_INET;
 	InternetAddr.sin_addr.s_addr = inet_addr(ipAddr);
-	InternetAddr.sin_port = htons(PORT);				//7000
+	InternetAddr.sin_port = htons(portNum);							//7000
 
+	InternetAddr2.sin_family = AF_INET;
+	InternetAddr2.sin_port = htons(portNum);
+	InternetAddr2.sin_addr.s_addr = htons(INADDR_ANY);
 
-	if (bind(sock, (PSOCKADDR)&InternetAddr,
-		sizeof(InternetAddr)) == SOCKET_ERROR)
+	if (bind(sock, (PSOCKADDR)&InternetAddr2,
+		sizeof(InternetAddr2)) == SOCKET_ERROR)
 	{
-		
+		char msgBuffy[20];
+		OutputDebugString("Bind Error: ");
+		OutputDebugString(_itoa(WSAGetLastError(), msgBuffy, 10));
+		OutputDebugString("\n");
 		OutputDebugString("bind() failed with error %d\n");
 		/*printf(, WSAGetLastError());*/
 		return 1;
@@ -463,27 +470,27 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
 		return FALSE;
 	}
 
-	// Set up and prepare header for input
-	WaveInHdr.lpData = (LPSTR)waveInBuffer;
-	WaveInHdr.dwBufferLength = DATA_BUFSIZE;
-	WaveInHdr.dwBytesRecorded = 0;
-	WaveInHdr.dwUser = 0L;
-	WaveInHdr.dwFlags = 0L;
-	WaveInHdr.dwLoops = 0L;
-	result = waveInPrepareHeader(hwi, &WaveInHdr, sizeof(WAVEHDR));
+	//// Set up and prepare header for input
+	//WaveInHdr.lpData = (LPSTR)waveInBuffer;
+	//WaveInHdr.dwBufferLength = DATA_BUFSIZE;
+	//WaveInHdr.dwBytesRecorded = 0;
+	//WaveInHdr.dwUser = 0L;
+	//WaveInHdr.dwFlags = 0L;
+	//WaveInHdr.dwLoops = 0L;
+	//result = waveInPrepareHeader(hwi, &WaveInHdr, sizeof(WAVEHDR));
 
-	if (result) {
-		OutputDebugString("Error: cannot prepare wave in header!\n");
-		return 1;
-	}
+	//if (result) {
+	//	OutputDebugString("Error: cannot prepare wave in header!\n");
+	//	return 1;
+	//}
 
-	// Insert a wave input buffer
-	result = waveInAddBuffer(hwi, &WaveInHdr, sizeof(WAVEHDR));
-	if (result)
-	{
-		OutputDebugString("Failed to add wave input buffer!\n");
-		return 1;
-	}
+	//// Insert a wave input buffer
+	//result = waveInAddBuffer(hwi, &WaveInHdr, sizeof(WAVEHDR));
+	//if (result)
+	//{
+	//	OutputDebugString("Failed to add wave input buffer!\n");
+	//	return 1;
+	//}
 
 	result = waveInStart(hwi);
 
@@ -512,7 +519,7 @@ DWORD WINAPI WorkerThread(LPVOID lpParameter)
 		}
 		else if (Index == 0) {
 			//reset dummy event
-			WSAResetEvent(EventArray[0]);
+			/*WSAResetEvent(EventArray[0]);*/
 		}
 		else {
 			OutputDebugString("COULD NOT RESET EVENT!\n");
@@ -679,7 +686,7 @@ void CALLBACK waveInProc(
 			 4) WSASetEvent (trigger completion routine)
 			*/
 			// 1)
-
+			 
 			
 			completedWaveInHeader = *(WAVEHDR*)dwParam1;
 			inputSocketBuffer = (BYTE*)malloc(DATA_BUFSIZE);						// alloc for buffer to be sent to queue of buffers

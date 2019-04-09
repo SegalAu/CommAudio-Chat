@@ -1,9 +1,9 @@
 ﻿  physical.cpp
-c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(175): warning C4101: 'nRead': unreferenced local variable
-c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(174): warning C4101: 'buffer': unreferenced local variable
-c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(342): warning C4101: 'AcceptEvent': unreferenced local variable
-c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(338): warning C4101: 'buf_ptr': unreferenced local variable
-c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(334): warning C4101: 'err': unreferenced local variable
-c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(571): warning C4101: 'RecvBytes': unreferenced local variable
-c:\users\a01000835\documents\commaudio-chat\datacommassign1\physical.cpp(572): warning C4101: 'Flags': unreferenced local variable
-  DataCommAssign1.vcxproj -> C:\Users\A01000835\Documents\CommAudio-Chat\Debug\DataCommAssign1.exe
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(176): warning C4101: 'nRead': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(175): warning C4101: 'buffer': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(343): warning C4101: 'AcceptEvent': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(339): warning C4101: 'buf_ptr': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(335): warning C4101: 'err': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(578): warning C4101: 'RecvBytes': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(579): warning C4101: 'Flags': unreferenced local variable
+  DataCommAssign1.vcxproj -> C:\Users\Administrator\Desktop\updated\CommAudio-Chat\Debug\DataCommAssign1.exe
