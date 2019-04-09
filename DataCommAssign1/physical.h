@@ -1,5 +1,5 @@
 #define PORT 7000
-#define DATA_BUFSIZE 512
+#define DATA_BUFSIZE 4000
 #define NUMBUFS 16
 
 
