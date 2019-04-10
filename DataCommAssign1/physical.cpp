@@ -48,6 +48,12 @@ typedef struct _SOCKET_INFORMATION {
 
 void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred, LPWSAOVERLAPPED Overlapped, DWORD InFlags);
 
+
+int portNum = 7000;
+char * ipAddr = "192.168.0.16";
+
+
+
 SOCKET AcceptSocket;
 SOCKET sock;
 SOCKADDR_IN InternetAddr;
@@ -370,13 +376,11 @@ int setupSendSocket() {
 
 
 
-	int portNum;
-	char * ipAddr; 
+	
 
 	//HARDCODED VALUES
 	nBufSize = DATA_BUFSIZE;
-	portNum = 7000; 
-	ipAddr = "192.168.0.18";
+	
 
 
 	/*buf = (char*)malloc(nBufSize);

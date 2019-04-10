@@ -1,4 +1,16 @@
-﻿  voipPlay.cpp
+﻿  physical.cpp
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.h(9): warning C4005: 'PORT': macro redefinition
+  c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.h(1): note: see previous definition of 'PORT'
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(191): warning C4101: 'nRead': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(190): warning C4101: 'buffer': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(374): warning C4101: 'AcceptEvent': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(370): warning C4101: 'buf': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(366): warning C4101: 'i': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(370): warning C4101: 'buf_ptr': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(366): warning C4101: 'err': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(658): warning C4101: 'RecvBytes': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(659): warning C4101: 'Flags': unreferenced local variable
+  voipPlay.cpp
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(168): warning C4473: 'printf' : not enough arguments passed for format string
   c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(168): note: placeholders and their parameters expect 1 variadic arguments, but 0 were provided
   c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(168): note: the missing variadic argument 1 is required by format string '%d'
@@ -17,4 +29,5 @@ c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.c
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(328): warning C4101: 'RecvBytes': unreferenced local variable
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(329): warning C4101: 'Flags': unreferenced local variable
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(328): warning C4101: 'SendBytes': unreferenced local variable
+  Generating Code...
   DataCommAssign1.vcxproj -> C:\Users\Administrator\Desktop\updated\CommAudio-Chat\Debug\DataCommAssign1.exe

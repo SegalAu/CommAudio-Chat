@@ -6,7 +6,7 @@
 #define WAVEHDR_ARR_SIZE 16
 #define AUDIO_BUFFER_SIZE 4000
 #define RIFF_HDR_SIZE 44
-#define PORT 7000
+#define PORT 6500						// sent from BENS COMP
 #define DATA_BUFSIZE 4000
 
 
