@@ -8,4 +8,9 @@ c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.c
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(359): warning C4101: 'err': unreferenced local variable
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(653): warning C4101: 'RecvBytes': unreferenced local variable
 c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(654): warning C4101: 'Flags': unreferenced local variable
+  application.cpp
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\resource.h(12): warning C4005: 'IDM_EXIT': macro redefinition
+  c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\header.h(23): note: see previous definition of 'IDM_EXIT'
+  voipPlay.cpp
+  Generating Code...
   DataCommAssign1.vcxproj -> C:\Users\Administrator\Desktop\updated\CommAudio-Chat\Debug\DataCommAssign1.exe

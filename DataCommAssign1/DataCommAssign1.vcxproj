@@ -159,6 +159,7 @@
     <ClCompile Include="physical.cpp" />
     <ClCompile Include="application.cpp" />
     <ClCompile Include="session.cpp" />
+    <ClCompile Include="voipPlay.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DataCommAssign1.rc" />
