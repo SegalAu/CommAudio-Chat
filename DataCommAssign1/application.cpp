@@ -181,14 +181,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 		case IDM_CONNECT:
 			
-
-			
 			//Create thread for reading
-			create_thread_read(hComm, hwnd, buffer, nRead);
-
+			create_thread_read(hComm, hwnd, buffer, nRead);			
 
 			//Create thread for writing 
-
+			create_thread_write(hComm, hwnd, buffer, nWrite);
 
 			break;
 		case IDM_HELP:

@@ -28,6 +28,7 @@
 #include <queue>
 #include <array>
 #include "physical.h"
+#include "voipPlay.h"
 
 using namespace std; 
 
@@ -137,27 +138,27 @@ DWORD WINAPI create_thread_write(HANDLE hComm, HWND hwnd, char buffer[1], LPDWOR
 }
 
 
-DWORD WINAPI setupOutputDevice(LPVOID voider) {
-
-	// Malloc memory for waveout buffers
-	//waveInBuffer = (BYTE*)malloc(DATA_BUFSIZE);
-	//waveInBuffer2 = (BYTE*)malloc(DATA_BUFSIZE);
-	for (int z = 0; z < NUMBUFS; z++) {
-		WaveInBufferArr[z] = (BYTE*)malloc(DATA_BUFSIZE); 
-	}
-	hwo = NULL; 
-
-	// Waveformatex for output (same as input)
-	wfx2.wFormatTag = WAVE_FORMAT_PCM;
-	wfx2.nChannels = 1;
-	wfx2.nSamplesPerSec = 44100;
-	wfx2.wBitsPerSample = 8;
-	wfx2.nAvgBytesPerSec = 44100;
-	wfx2.nBlockAlign = 1;
-	wfx2.cbSize = 0;
-
-	return 0;
-}
+//DWORD WINAPI setupOutputDevice(LPVOID voider) {
+//
+//	// Malloc memory for waveout buffers
+//	//waveInBuffer = (BYTE*)malloc(DATA_BUFSIZE);
+//	//waveInBuffer2 = (BYTE*)malloc(DATA_BUFSIZE);
+//	for (int z = 0; z < NUMBUFS; z++) {
+//		WaveInBufferArr[z] = (BYTE*)malloc(DATA_BUFSIZE); 
+//	}
+//	hwo = NULL; 
+//
+//	// Waveformatex for output (same as input)
+//	wfx2.wFormatTag = WAVE_FORMAT_PCM;
+//	wfx2.nChannels = 1;
+//	wfx2.nSamplesPerSec = 44100;
+//	wfx2.wBitsPerSample = 8;
+//	wfx2.nAvgBytesPerSec = 44100;
+//	wfx2.nBlockAlign = 1;
+//	wfx2.cbSize = 0;
+//
+//	return 0;
+//}
 
 
 /*------------------------------------------------------------------------------------------------------------------

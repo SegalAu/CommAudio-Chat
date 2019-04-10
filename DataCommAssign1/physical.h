@@ -32,7 +32,7 @@ DWORD WINAPI create_thread_write(HANDLE hComm, HWND hwnd, char buffer[1], LPDWOR
 
 // Thread Functions
 DWORD WINAPI setupInputDevice(LPVOID voider);
-DWORD WINAPI setupOutputDevice(LPVOID voider);
+
 
 void CALLBACK waveInProc(
 	HWAVEIN   hwi,

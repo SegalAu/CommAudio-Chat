@@ -1,16 +1,20 @@
-﻿  physical.cpp
-c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(184): warning C4101: 'nRead': unreferenced local variable
-c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(183): warning C4101: 'buffer': unreferenced local variable
-c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(367): warning C4101: 'AcceptEvent': unreferenced local variable
-c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(363): warning C4101: 'buf': unreferenced local variable
-c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(359): warning C4101: 'i': unreferenced local variable
-c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(363): warning C4101: 'buf_ptr': unreferenced local variable
-c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(359): warning C4101: 'err': unreferenced local variable
-c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(653): warning C4101: 'RecvBytes': unreferenced local variable
-c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\physical.cpp(654): warning C4101: 'Flags': unreferenced local variable
-  application.cpp
-c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\resource.h(12): warning C4005: 'IDM_EXIT': macro redefinition
-  c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\header.h(23): note: see previous definition of 'IDM_EXIT'
-  voipPlay.cpp
-  Generating Code...
+﻿  voipPlay.cpp
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(168): warning C4473: 'printf' : not enough arguments passed for format string
+  c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(168): note: placeholders and their parameters expect 1 variadic arguments, but 0 were provided
+  c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(168): note: the missing variadic argument 1 is required by format string '%d'
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(47): warning C4101: 'callbackInstance': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(37): warning C4101: 'mmckinfoSubchunk': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(35): warning C4101: 'hmmio': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(103): warning C4101: 'outBuffers': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(53): warning C4101: 'bytesReadPerSecond': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(38): warning C4101: 'dwFmtSize': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(36): warning C4101: 'mmckinfoParent': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(39): warning C4101: 'dwDataSize': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(48): warning C4101: 'waveHdr': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(34): warning C4101: 'szFileName': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(41): warning C4101: 'lpData': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(238): warning C4101: 'bytesSent': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(328): warning C4101: 'RecvBytes': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(329): warning C4101: 'Flags': unreferenced local variable
+c:\users\administrator\desktop\updated\commaudio-chat\datacommassign1\voipplay.cpp(328): warning C4101: 'SendBytes': unreferenced local variable
   DataCommAssign1.vcxproj -> C:\Users\Administrator\Desktop\updated\CommAudio-Chat\Debug\DataCommAssign1.exe
